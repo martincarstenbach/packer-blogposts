@@ -28,7 +28,8 @@
                 [ "modifyvm", "{{.Name}}", "--memory", "2048" ],
                 [ "modifyvm", "{{.Name}}", "--cpus", "2" ]
             ],
-            "vm_name": "debian11base"
+            "vm_name": "debian11base",
+            "output_directory": "output-virtualbox-iso-debian11base"
         }
     ],
     "post-processors": [
