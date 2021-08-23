@@ -1,0 +1,48 @@
+{
+    "builders": [
+        {
+            "type": "virtualbox-iso",
+            "boot_command": [
+                "<esc><wait>",
+                "install <wait>",
+                " auto=true",
+                " priority=critical",
+                " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg <wait>",
+                "<enter><wait>"
+            ],
+            "boot_wait": "10s",
+            "disk_size": "20480",
+            "hard_drive_interface": "sata",
+            "sata_port_count": "5",
+            "hard_drive_nonrotational": "true",
+            "guest_os_type": "Debian_64",
+            "guest_additions_path": "/home/vagrant/VBoxGuestAdditions.iso",
+            "http_directory": "http",
+            "iso_checksum": "sha256:REPLACE_ME_SHA256SUM",
+            "iso_url": "file://REPLACE_ME_DEBIAN11_NETINST",
+            "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+            "ssh_username": "vagrant",
+            "ssh_agent_auth": true,
+            "ssh_wait_timeout": "600s",
+            "vboxmanage": [
+                [ "modifyvm", "{{.Name}}", "--memory", "2048" ],
+                [ "modifyvm", "{{.Name}}", "--cpus", "2" ]
+            ],
+            "vm_name": "debian11base"
+        }
+    ],
+    "post-processors": [
+        {
+            "keep_input_artifact": false,
+            "output": "REPLACE_ME_BOXNAME",
+            "type": "vagrant"
+        }
+    ],
+    "provisioners": [
+        {
+          "type": "ansible",
+          "playbook_file": "ansible/vagrant-debian-11-guest-additions.yml",
+          "user": "vagrant"
+        }
+      ]
+}
