@@ -5,3 +5,4 @@ setenv.sh
 http/*
 output-virtualbox-iso
 vagrant-debian-11.json
+vagrant-ol*.json
