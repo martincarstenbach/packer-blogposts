@@ -39,7 +39,13 @@
       - wget
       - unzip
       - kernel-uek-devel
-      - dkms
+      - oracle-epel-release-el7
+  
+  - name: install DKMS from the OL7 EPEL repository
+    yum:
+      name: dkms
+      enablerepo: ol7_developer_EPEL
+      state: present
 
   - name: create a temporary mount point for vbox guest additions  
     file:
@@ -72,6 +78,3 @@
     file:
       path: "{{ mountDir }}"
       state: absent
-
-  - name: remove unneeded kernels but one
-    command: /bin/package-cleanup --oldkernels --count=1

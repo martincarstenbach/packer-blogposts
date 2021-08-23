@@ -25,7 +25,8 @@
         [ "modifyvm", "{{.Name}}", "--memory", "2048" ],
         [ "modifyvm", "{{.Name}}", "--cpus", "2" ]
       ],
-      "vm_name": "ol7base"
+      "vm_name": "ol7base",
+      "output_directory": "output-virtualbox-iso-ol7base"
     }
   ],
   "provisioners": [

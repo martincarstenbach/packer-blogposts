@@ -26,7 +26,7 @@
 set -euo pipefail
 
 echo
-echo "INFO: preparing your packer environment for the creation of an Oracle Linux 7 Vagrant base box"
+echo "INFO: preparing packer build instructions for the creation of an Oracle Linux 7 Vagrant base box"
 echo
 
 if [ ! -d http ]; then
@@ -38,7 +38,6 @@ fi
 
 DEFAULT_SSH_KEY="${HOME}/.ssh/id_rsa.pub"
 
-echo
 /bin/ls -1 ${HOME}/.ssh/*.pub
 echo 
 read -p "Enter the full path to your public SSH key (${DEFAULT_SSH_KEY}): " SSH_KEY
@@ -48,12 +47,18 @@ if [ ! -f "${SSH_KEY:=${DEFAULT_SSH_KEY}}" ]; then
 fi
 
 VAGRANT_PUBLIC_KEY=$(/bin/cat "${SSH_KEY}")
+
+echo
+echo "INFO: adding the SSH key to the agent"
 /usr/bin/ssh-add "${SSH_KEY%.pub}" || echo "INFO: failed to add the SSH key to the agent, this may lead to errors if not corrected"
 
 /bin/sed \
 -e "s#REPLACE_ME_SSHKEY#${VAGRANT_PUBLIC_KEY}#" \
 template/kickstart-OracleLinux-7-template.ks > http/ol7.ks
 
+echo
+echo "INFO: kickstart file ready"
+echo
 # -------------------------- step 2: create the packer build instructions
 
 DEFAULT_INSTALL_ISO="/m/stage/V1009690-01-ol7.9.iso"
@@ -65,8 +70,10 @@ if [ ! -f ${INSTALL_ISO:=${DEFAULT_INSTALL_ISO}} ]; then
     exit 1
 fi
 
+echo
 echo "INFO: calculating SHA256sum for ${INSTALL_ISO}"
 SHA256SUM=$(/usr/bin/sha256sum "${INSTALL_ISO}" | /usr/bin/awk '{print $1}')
+echo
 
 read -p "Enter the full path to store the new vagrant box (${DEFAULT_BOX_LOC}):" VAGRANT_BOX_LOC 
 if [ ! -d $(/usr/bin/dirname ${VAGRANT_BOX_LOC:=${DEFAULT_BOX_LOC}}) ]; then
