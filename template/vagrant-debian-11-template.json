@@ -23,7 +23,7 @@
             "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
             "ssh_username": "vagrant",
             "ssh_agent_auth": true,
-            "ssh_wait_timeout": "600s",
+            "ssh_wait_timeout": "6000s",
             "vboxmanage": [
                 [ "modifyvm", "{{.Name}}", "--memory", "2048" ],
                 [ "modifyvm", "{{.Name}}", "--cpus", "2" ]

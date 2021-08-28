@@ -18,7 +18,7 @@
       "iso_url": "file://REPLACE_ME_INSTALL_ISO",
       "sata_port_count": "10",
       "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
-      "ssh_timeout": "600s",
+      "ssh_timeout": "6000s",
       "ssh_username": "vagrant",
       "ssh_agent_auth": true,
       "vboxmanage": [
