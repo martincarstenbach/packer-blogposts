@@ -29,10 +29,8 @@ echo
 echo "INFO: preparing packer build instructions for the creation of an Oracle Linux 8 Vagrant base box"
 echo
 
-if [ ! -d http ]; then
-    echo "ERR: must be in the top level directory to execute this script"
-    exit 1
-fi
+# need to create the http directory, it will contain the customised kickstart file
+[[ ! -d http ]] && mkdir http
 
 # -------------------------- step 1: create the kickstart file
 

@@ -29,10 +29,8 @@ echo
 echo "INFO: preparing your packer environment for the creation of a Debian 11 Vagrant base box"
 echo
 
-if [ ! -d http ]; then
-    echo "ERR: must be in the top level directory to execute this script"
-    exit 1
-fi
+# need to create the http directory, it will contain the customised preseed file
+[[ ! -d http ]] && mkdir http
 
 # -------------------------- step 1: create the preseed file 
 
