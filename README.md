@@ -6,7 +6,7 @@ Code examples from my blog covering Packer, Ansible, Vagrant and VirtualBox. See
 
 The code in this repository allows you to create a local Vagrant base box meeting [the requirements](https://www.vagrantup.com/docs/boxes/base) documented by HashiCorp as conveniently as possible. Although I tried to be quite generic in the way the code is written, I wrote it for myself and, nor won't guarantee it works for you. Please refer to the [License](LICENSE) for details.
 
-For each Packer build I implemented you'll find a `prepare-*.sh` script prompting you for input before creating the Packer JSON file. Each build contains a set of templates in the `template` folder. Placeholders in the templates will be substituted with your answers. Once that's completed, a build file will be present in the top level directory for you to run.
+For each Packer build I implemented you'll find a `prepare-*.sh` script prompting you for input before creating the Packer JSON file. Each build contains a set of templates in the `template` folder. Placeholders in the templates will be substituted with your answers. Once that's completed, a build file will be present in the top level directory for you to run. Make sure you check the auto-generated file for correctness. As I said before, this file works for what I need it to do, your directory structure is most likely different.
 
 It is assumed you verified the installation media, most notably the SHA256 checksums.
 
@@ -32,8 +32,10 @@ The process of creating Vagrant base boxes is documented on my blog.
 
 ## Notes
 
-This repository's code was developed on Ubuntu 20.04 LTS using
+This repository's code was developed on Ubuntu 22.04 LTS using the standard package sources for Ansible. Packer and VirtualBox have been downloaded an installed from the Web.
 
-- Ansible 2.9
-- Packer 1.7
-- VirtualBox 6.1.26
+> Before installing software always make sure you read, understand and abide by the license agreement!
+
+- Ansible 2.10.8
+- Packer 1.8.4
+- VirtualBox 6.1.40

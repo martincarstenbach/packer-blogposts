@@ -9,7 +9,7 @@
 # Version History
 # 20210823 initial version
 #
-# Copyright 2021 Martin Bach
+# Copyright 2022 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
