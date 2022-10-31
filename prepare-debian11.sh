@@ -8,8 +8,9 @@
 #
 # Version History
 # 20210823 initial version
+# 20221031 maintenance updates
 #
-# Copyright 2021 Martin Bach
+# Copyright 2022 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,8 +62,8 @@ template/preseed-debian-11-template.cfg > http/preseed.cfg
 
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_NETINST_ISO="/m/stage/debian-11.0.0-amd64-netinst.iso"
-DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/debian-11-01.box"
+DEFAULT_NETINST_ISO="/m/iso/debian-11.5.0-amd64-netinst.iso"
+DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/debian-11.5.0.box"
 
 read -p "Enter the location of the Debian 11 network installation media (${DEFAULT_NETINST_ISO})": NETINST_ISO
 if [ ! -f ${NETINST_ISO:=${DEFAULT_NETINST_ISO}} ]; then
