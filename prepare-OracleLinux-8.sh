@@ -3,13 +3,13 @@
 # prepare-OracleLinux-8.sh
 # ---------------------------------------------------------------------------
 # A short script to set up packer for building an Oracle Linux 8 system
-#
-# Tested and written on Ubuntu 20.04 LTS
+# Refer to the readme file for details
 #
 # Version History
 # 20210823 initial version
+# 20221031 update for Oracle Linux 8.5/Packer 1.8.x/Ansible 2.10.x
 #
-# Copyright 2021 Martin Bach
+# Copyright 2022 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -59,8 +59,8 @@ echo "INFO: kickstart file ready"
 echo
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_INSTALL_ISO="/m/stage/V1009565-01-ol8.4.iso"
-DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol8_8.4.2.box"
+DEFAULT_INSTALL_ISO="/m/iso/V1018317-01-OL8.5.iso"
+DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol8_8.5.0.box"
 
 read -p "Enter the location of the Oracle Linux 8 installation media (${DEFAULT_INSTALL_ISO})": INSTALL_ISO
 if [ ! -f ${INSTALL_ISO:=${DEFAULT_INSTALL_ISO}} ]; then
