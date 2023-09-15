@@ -2,7 +2,7 @@
 
 # Simple kickstart file for Oracle Linux 8.x to create the most basic Vagrant base box
 #
-# Copyright 2022 Martin Bach
+# Copyright 2023 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ lang en_US.UTF-8
 
 # Network information
 network  --bootproto=dhcp --ipv6=auto --activate
-network  --hostname=ol8base
+network  --hostname=ol8packer
 
 # Root password
 rootpw --iscrypted $6$22FQNGFudjDgx9Ss$vkEbaR74hbh8ArfYBoZyFT5QcrMpBN48dhKyFM.bv9ZsIPlbgrP1T86LS7ZB0w7u0M3NgLlveZ/1fRDSx.aNO/
@@ -60,6 +60,7 @@ clearpart --none --initlabel
 @^minimal-environment
 kexec-tools
 openssh-server
+openssh-clients
 bzip2
 unzip
 curl

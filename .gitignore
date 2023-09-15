@@ -4,5 +4,7 @@ crash.log
 setenv.sh
 http/*
 output-virtualbox-iso*
-vagrant-debian-11.json
+vagrant-debian*.json
+vagrant-debian*.hcl
 vagrant-ol*.json
+vagrant-ol*.hcl

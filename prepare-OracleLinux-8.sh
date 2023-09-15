@@ -48,7 +48,17 @@ VAGRANT_PUBLIC_KEY=$(/bin/cat "${SSH_KEY}")
 
 echo
 echo "INFO: adding the SSH key to the agent"
-/usr/bin/ssh-add "${SSH_KEY%.pub}" || echo "INFO: failed to add the SSH key to the agent, this may lead to errors if not corrected"
+
+# start the SSH agent if it is not yet started
+[[ -z ${SSH_AGENT_PID} ]] && { 
+    echo "INFO: SSH agent not yet started, starting it now"
+    eval $(/usr/bin/ssh-agent)
+}
+
+/usr/bin/ssh-add "${SSH_KEY%.pub}" || {
+    echo "ERR: failed to add the SSH key to the agent, check logs"
+    exit 1
+}
 
 /bin/sed \
 -e "s#REPLACE_ME_SSHKEY#${VAGRANT_PUBLIC_KEY}#" \
@@ -59,8 +69,8 @@ echo "INFO: kickstart file ready"
 echo
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_INSTALL_ISO="/m/iso/V1018317-01-OL8.5.iso"
-DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol8_8.5.0.box"
+DEFAULT_INSTALL_ISO="/m/stage/OracleLinux-R8-U8-x86_64-dvd.iso"
+DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol8_8.8.0.box"
 
 read -p "Enter the location of the Oracle Linux 8 installation media (${DEFAULT_INSTALL_ISO})": INSTALL_ISO
 if [ ! -f ${INSTALL_ISO:=${DEFAULT_INSTALL_ISO}} ]; then
@@ -86,10 +96,10 @@ fi
 -e "s#REPLACE_ME_SHA256SUM#${SHA256SUM}#" \
 -e "s#REPLACE_ME_INSTALL_ISO#${INSTALL_ISO}#" \
 -e "s#REPLACE_ME_BOXNAME#${VAGRANT_BOX_LOC}#" \
-template/vagrant-OracleLinux-8-template.json > vagrant-ol8.json
+template/vagrant-OracleLinux-8-template.pkr.hcl > vagrant-ol8.pkr.hcl
 
 # -------------------------- job done
 
 echo
-echo "INFO: preparation complete, next run packer validate vagrant-ol8.json && packer build vagrant-ol8.json"
+echo "INFO: preparation complete, next run packer validate vagrant-ol8.pkr.hcl && packer build vagrant-ol8.pkr.hcl"
 echo

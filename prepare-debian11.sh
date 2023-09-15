@@ -9,8 +9,9 @@
 # Version History
 # 20210823 initial version
 # 20221031 maintenance updates
+# 20230915 update for HCL2 and Packer 1.9.x
 #
-# Copyright 2022 Martin Bach
+# Copyright 2023 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -52,7 +53,10 @@ if [ ! -f "${SSH_KEY:=${DEFAULT_SSH_KEY}}" ]; then
 fi
 
 VAGRANT_PUBLIC_KEY=$(/bin/cat "${SSH_KEY}")
-/usr/bin/ssh-add "${SSH_KEY%.pub}" || echo "INFO: failed to add the SSH key to the agent, this may lead to errors if not corrected"
+/usr/bin/ssh-add "${SSH_KEY%.pub}" || {
+    echo "INFO: failed to add the SSH key to the agent, check logs"
+    exit 1
+}
 
 /bin/sed \
 -e "s#REPLACE_ME_MIRROR_DIR#${DEBIAN_MIRROR_DIR:-${DEFAULT_MIRROR_DIR}}#" \
@@ -62,8 +66,8 @@ template/preseed-debian-11-template.cfg > http/preseed.cfg
 
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_NETINST_ISO="/m/iso/debian-11.5.0-amd64-netinst.iso"
-DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/debian-11.5.0.box"
+DEFAULT_NETINST_ISO="/m/stage/debian-11.7.0-amd64-netinst.iso"
+DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/debian-11.7.0.box"
 
 read -p "Enter the location of the Debian 11 network installation media (${DEFAULT_NETINST_ISO})": NETINST_ISO
 if [ ! -f ${NETINST_ISO:=${DEFAULT_NETINST_ISO}} ]; then
@@ -86,10 +90,11 @@ fi
 -e "s#REPLACE_ME_SHA256SUM#${SHA256SUM}#" \
 -e "s#REPLACE_ME_DEBIAN11_NETINST#${NETINST_ISO}#" \
 -e "s#REPLACE_ME_BOXNAME#${VAGRANT_BOX_LOC}#" \
-template/vagrant-debian-11-template.json > vagrant-debian-11.json
+template/vagrant-debian-11-template.pkr.hcl > vagrant-debian-11.pkr.hcl
 
 # -------------------------- job done
 
 echo
-echo "INFO: preparation complete, next run packer validate vagrant-debian-11.json && packer build vagrant-debian-11.json"
+echo "INFO: preparation complete, next run packer init && packer validate vagrant-debian-11.pkr.hcl "
+echo "INFO: followed by packer build vagrant-debian-11.pkr.hcl"
 echo
