@@ -4,12 +4,10 @@
 # ---------------------------------------------------------------------------
 # A short script to set up packer for building a debian 11 system
 #
-# Tested and written on Ubuntu 20.04 LTS
+# Tested and written on Ubuntu 22.04 LTS
 #
 # Version History
-# 20210823 initial version
-# 20221031 maintenance updates
-# 20230915 update for HCL2 and Packer 1.9.x
+# 20231003 initial version
 #
 # Copyright 2023 Martin Bach
 #
@@ -53,8 +51,16 @@ if [ ! -f "${SSH_KEY:=${DEFAULT_SSH_KEY}}" ]; then
 fi
 
 VAGRANT_PUBLIC_KEY=$(/bin/cat "${SSH_KEY}")
+echo
+echo "INFO: adding the SSH key to the agent"
+/usr/bin/env | /usr/bin/grep -qE "(AGENT_PID|AUTH_SOCK)" || {
+    # start the SSH agent if it is not yet started
+    echo "INFO: SSH agent not yet started, starting it now"
+    eval $(/usr/bin/ssh-agent)
+}
+
 /usr/bin/ssh-add "${SSH_KEY%.pub}" || {
-    echo "INFO: failed to add the SSH key to the agent, check logs"
+    echo "ERR: failed to add the SSH key to the agent, check logs"
     exit 1
 }
 
@@ -66,7 +72,7 @@ template/preseed-debian-11-template.cfg > http/preseed.cfg
 
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_NETINST_ISO="/m/stage/debian-11.7.0-amd64-netinst.iso"
+DEFAULT_NETINST_ISO="/m/stage/iso/debian-11.7.0-amd64-netinst.iso"
 DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/debian-11.7.0.box"
 
 read -p "Enter the location of the Debian 11 network installation media (${DEFAULT_NETINST_ISO})": NETINST_ISO
@@ -86,10 +92,26 @@ elif [ -f "${VAGRANT_BOX_LOC:=${DEFAULT_BOX_LOC}}" ]; then
     exit 1
 fi
 
+# define target architecture (Virtualbox or KVM)
+read -p "Should packer build this VM for Virtualbox (vbox) or KVM (kvm)? " VAGRANT_BUILD_TARGET
+case ${VAGRANT_BUILD_TARGET} in
+kvm)
+    VAGRANT_BUILD_TARGET="source.qemu.debian11qemu"
+    ;;
+vbox)
+    VAGRANT_BUILD_TARGET="source.virtualbox-iso.debian11vbox"
+    ;;
+*)
+    echo "ERR: invalid architecture, must be one of kvm, vbox"
+    exit 1
+    ;;
+esac
+
 /bin/sed \
 -e "s#REPLACE_ME_SHA256SUM#${SHA256SUM}#" \
 -e "s#REPLACE_ME_DEBIAN11_NETINST#${NETINST_ISO}#" \
 -e "s#REPLACE_ME_BOXNAME#${VAGRANT_BOX_LOC}#" \
+-e "s#REPLACE_ME_BUILD_ARCH#${VAGRANT_BUILD_TARGET}#" \
 template/vagrant-debian-11-template.pkr.hcl > vagrant-debian-11.pkr.hcl
 
 # -------------------------- job done

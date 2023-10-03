@@ -1,6 +1,6 @@
 # HashiCorp Packer examples
 
-Code examples from my blog covering Packer, Ansible, Vagrant and VirtualBox. See https://martincarstenbach.wordpress.com/ for more details.
+Code examples from my blog covering [Packer](https://www.packer.io/), [Ansible](https://www.ansible.com/), [Vagrant](https://www.vagrantup.com/) and [VirtualBox](https://www.virtualbox.org/). Now including the [libvirt-provider](https://github.com/vagrant-libvirt/vagrant-libvirt) for Vagrant as well. See <https://martincarstenbach.wordpress.com/> for more details.
 
 ## Usage
 
@@ -10,9 +10,9 @@ For each Packer build I implemented you'll find a `prepare-*.sh` script promptin
 
 It is assumed you verified the installation media, most notably the SHA256 checksums, before using them.
 
-Once the base install is complete, Ansible playbooks are executed, installing Virtual Box [Guest Additions](https://www.virtualbox.org/manual/ch04.html) matching your VirtualBox version.
+Once the base install is complete, Ansible playbooks are executed, installing Virtual Box [Guest Additions](https://www.virtualbox.org/manual/ch04.html) matching your VirtualBox version in case you build your Vagrant box for this platform. Building for KVM doesn't require this step.
 
-If you get the following message when validating the generated HCL file you will need to install the plugins
+If you get the following message when validating the generated HCL file you will need to install the plugins as per the instructions on screen.
 
 ```
 Error: Missing plugins
@@ -20,6 +20,7 @@ Error: Missing plugins
 The following plugins are required, but not installed:
 
 * github.com/hashicorp/ansible ~> 1
+* github.com/hashicorp/qemu ~> 1
 * github.com/hashicorp/vagrant ~> 1
 
 Did you run packer init for this project ?
@@ -29,7 +30,7 @@ Did you run packer init for this project ?
 
 Virtual Box Guest Additions work best when Dynamic Kernel Module Support (DKMS) is present on your system. If you have them installed, Virtualbox guest additions (= kernel modules) are automatically created as part of a kernel upgrade. DKMS is _not_ required, but due to its usefulness I opted to _include it in my build_. This would be too good to be true if it didn't came with a caveat.
 
-Oracle Linux 8 doesn't ship DKMS in the standard repositories, you need to enable the Extra Packages for Enterprise Linux (EPEL) repository to install the RPM. As per https://yum.oracle.com, the EPEL repository for [Oracle Linux 8](https://yum.oracle.com/oracle-linux-8.html) is listed in *Packages for Test and Development*. Quoting Oracle:
+Oracle Linux 8 doesn't ship DKMS in the standard repositories, you need to enable the Extra Packages for Enterprise Linux (EPEL) repository to install the RPM. As per <https://yum.oracle.com>, the EPEL repository for [Oracle Linux 8](https://yum.oracle.com/oracle-linux-8.html) is listed in *Packages for Test and Development*. Quoting Oracle:
 
 > Note: The contents in the following repositories are for development purposes only. Oracle suggests these not be used in production.
 
@@ -61,3 +62,4 @@ Major milestones - all the history can be found in Git.
 | in between  | further minor revisions |
 | 221031 | update for OL8.5, Packer 1.8 and Ansible 2.10.x |
 | 230912 | update to Packer 1.9.4 and HCL2, dropped support for Oracle Linux 7 |
+| 231003 | fixes for Debian 11 and 12, add support for `vagrant-libvirt` |

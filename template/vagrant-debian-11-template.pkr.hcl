@@ -16,7 +16,7 @@ packer {
 }
 
 # Reference: https://developer.hashicorp.com/packer/integrations/hashicorp/virtualbox/latest/components/builder/iso
-source "virtualbox-iso" "debian12vbox" {
+source "virtualbox-iso" "debian11vbox" {
   boot_command             = [
     "<esc><wait>",
     "install <wait>",
@@ -34,7 +34,7 @@ source "virtualbox-iso" "debian12vbox" {
   http_directory           = "http"
   iso_checksum             = "sha256:REPLACE_ME_SHA256SUM"
   iso_url                  = "file://REPLACE_ME_INSTALL_ISO"
-  output_directory         = "output-virtualbox-iso-debian12vbox"
+  output_directory         = "output-virtualbox-iso-debian11vbox"
   sata_port_count          = "10"
   shutdown_command         = "echo 'packer' | sudo -S shutdown -P now"
   ssh_agent_auth           = true
@@ -46,14 +46,14 @@ source "virtualbox-iso" "debian12vbox" {
     ["modifyvm", "{{.Name}}", "--nat-localhostreachable1", "on" ]
 
   ]
-  vm_name                  = "debian12vbox"
+  vm_name                  = "debian11vbox"
 }
 
 # Reference: https://developer.hashicorp.com/packer/integrations/hashicorp/qemu/latest/components/builder/qemu
-source "qemu" "debian12qemu" {
-  iso_url           = "file://REPLACE_ME_DEBIAN12_NETINST"
+source "qemu" "debian11qemu" {
+  iso_url           = "file://REPLACE_ME_DEBIAN11_NETINST"
   iso_checksum      = "sha256:REPLACE_ME_SHA256SUM"
-  output_directory  = "output-qemu-debian12qemu"
+  output_directory  = "output-qemu-debian11qemu"
   shutdown_command  = "echo 'packer' | sudo -S shutdown -P now"
   disk_size         = "20480"
   format            = "qcow2"
@@ -62,7 +62,7 @@ source "qemu" "debian12qemu" {
   ssh_username      = "vagrant"
   ssh_agent_auth    = true
   ssh_timeout       = "6000s"
-  vm_name           = "debian12qemu"
+  vm_name           = "debian11qemu"
   net_device        = "virtio-net"
   disk_interface    = "virtio-scsi"
   boot_command             = [
