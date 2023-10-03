@@ -8,8 +8,9 @@
 # Version History
 # 20210823 initial version
 # 20221031 update for Oracle Linux 8.5/Packer 1.8.x/Ansible 2.10.x
+# 20231002 update for Oracle Linux 8.8/Packer 1.9.x/Ansible 2.10.x
 #
-# Copyright 2022 Martin Bach
+# Copyright 2023 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,9 +49,8 @@ VAGRANT_PUBLIC_KEY=$(/bin/cat "${SSH_KEY}")
 
 echo
 echo "INFO: adding the SSH key to the agent"
-
-# start the SSH agent if it is not yet started
-[[ -z ${SSH_AGENT_PID} ]] && { 
+/usr/bin/env | /usr/bin/grep -qE "(AGENT_PID|AUTH_SOCK)" || {
+    # start the SSH agent if it is not yet started
     echo "INFO: SSH agent not yet started, starting it now"
     eval $(/usr/bin/ssh-agent)
 }
@@ -69,7 +69,7 @@ echo "INFO: kickstart file ready"
 echo
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_INSTALL_ISO="/m/stage/OracleLinux-R8-U8-x86_64-dvd.iso"
+DEFAULT_INSTALL_ISO="/m/stage/iso/OracleLinux-R8-U8-x86_64-dvd.iso"
 DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol8_8.8.0.box"
 
 read -p "Enter the location of the Oracle Linux 8 installation media (${DEFAULT_INSTALL_ISO})": INSTALL_ISO
@@ -92,10 +92,26 @@ elif [ -f "${VAGRANT_BOX_LOC:=${DEFAULT_BOX_LOC}}" ]; then
     exit 1
 fi
 
+# define architecture
+read -p "Should packer build this VM for Virtualbox (vbox) or KVM (kvm)? " VAGRANT_BUILD_TARGET
+case ${VAGRANT_BUILD_TARGET} in
+kvm)
+    VAGRANT_BUILD_TARGET="source.qemu.ol8qemu"
+    ;;
+vbox)
+    VAGRANT_BUILD_TARGET="source.virtualbox-iso.ol8vbox"
+    ;;
+*)
+    echo "ERR: invalid architecture, must be one of kvm, vbox"
+    exit 1
+    ;;
+esac
+
 /bin/sed \
 -e "s#REPLACE_ME_SHA256SUM#${SHA256SUM}#" \
 -e "s#REPLACE_ME_INSTALL_ISO#${INSTALL_ISO}#" \
 -e "s#REPLACE_ME_BOXNAME#${VAGRANT_BOX_LOC}#" \
+-e "s#REPLACE_ME_BUILD_ARCH#${VAGRANT_BUILD_TARGET}#" \
 template/vagrant-OracleLinux-8-template.pkr.hcl > vagrant-ol8.pkr.hcl
 
 # -------------------------- job done
