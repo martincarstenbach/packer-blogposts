@@ -8,3 +8,6 @@ vagrant-debian*.json
 vagrant-debian*.hcl
 vagrant-ol*.json
 vagrant-ol*.hcl
+!template/vagrant-debian-12-template.pkr.hcl
+!template/vagrant-debian-11-template.pkr.hcl
+!template/vagrant-OracleLinux-8-template.pkr.hcl
