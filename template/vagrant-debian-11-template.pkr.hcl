@@ -33,7 +33,7 @@ source "virtualbox-iso" "debian11vbox" {
   hard_drive_discard       = "true"
   http_directory           = "http"
   iso_checksum             = "sha256:REPLACE_ME_SHA256SUM"
-  iso_url                  = "file://REPLACE_ME_INSTALL_ISO"
+  iso_url                  = "file://REPLACE_ME_DEBIAN11_NETINST"
   output_directory         = "output-virtualbox-iso-debian11vbox"
   sata_port_count          = "10"
   shutdown_command         = "echo 'packer' | sudo -S shutdown -P now"
