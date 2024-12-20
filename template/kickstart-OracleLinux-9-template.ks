@@ -1,6 +1,6 @@
-#version=OL8
+#version=OL9
 
-# Simple kickstart file for Oracle Linux 8.x to create the most basic Vagrant base box
+# Simple kickstart file for Oracle Linux 9.x to create the most basic Vagrant base box
 #
 # Copyright 2024 Martin Bach
 #
@@ -26,7 +26,7 @@ cdrom
 # ----------------------- system settings
 
 # software
-repo --name="AppStream" --baseurl=file:///run/install/repo/AppStream
+repo --name="AppStream" --baseurl=file:///run/install/sources/mount-0000-cdrom/AppStream
 skipx
 
 # Keyboard layouts
@@ -35,10 +35,10 @@ lang en_US.UTF-8
 
 # Network information
 network  --bootproto=dhcp --ipv6=auto --activate
-network  --hostname=ol8packer
+network  --hostname=ol9packer
 
 # Root password
-rootpw --iscrypted $6$22FQNGFudjDgx9Ss$vkEbaR74hbh8ArfYBoZyFT5QcrMpBN48dhKyFM.bv9ZsIPlbgrP1T86LS7ZB0w7u0M3NgLlveZ/1fRDSx.aNO/
+rootpw --iscrypted $6$wz0w1cWqtJbHDBGV$sxI3YgJCWxXUdf1kUZd8KneBCK2iwW1Fh/SdeLWJ.gBTNDrJrex2/ANoR7OQ3jGJcetT1yXaW.fGAhRFgn7cd1
 
 # System services
 services --enabled="chronyd"
@@ -47,7 +47,8 @@ services --enabled="chronyd"
 timezone Etc/UTC --isUtc
 
 # vagrant account
-user --name=vagrant --password=$6$22FQNGFudjDgx9Ss$vkEbaR74hbh8ArfYBoZyFT5QcrMpBN48dhKyFM.bv9ZsIPlbgrP1T86LS7ZB0w7u0M3NgLlveZ/1fRDSx.aNO/ --iscrypted
+user --name=vagrant --password=$6$0tKbDlH3oWCofl1G$cblMfvUCop9TCgTAKfQZYM4l3ZLahzrirsXrFW6Hv56GFLXKp5kQ5TqEi6fkWJ5HkvAo3gw8tdP6ZJ3xaD0Km/ --iscrypted --gecos="vagrant"
+
 sshkey --username=vagrant "REPLACE_ME_SSHKEY"
 
 # partitioning and boot loader
@@ -65,18 +66,11 @@ bzip2
 unzip
 curl
 wget
-drpm
 
 %end
 
 %addon com_redhat_kdump --enable --reserve-mb='auto'
 
-%end
-
-%anaconda
-pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty
-pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok
-pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 %end
 
 %post --log=/root/ks-post.log

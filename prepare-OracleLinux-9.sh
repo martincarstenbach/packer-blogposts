@@ -1,15 +1,12 @@
 #!/usr/bin/env bash
 
-# prepare-OracleLinux-8.sh
+# prepare-OracleLinux-9.sh
 # ---------------------------------------------------------------------------
-# A short script to set up packer for building an Oracle Linux 8 system
+# A short script to set up packer for building an Oracle Linux 9 system
 # Refer to the readme file for details
 #
 # Version History
-# 20210823 initial version
-# 20221031 update for Oracle Linux 8.5/Packer 1.8.x/Ansible 2.10.x
-# 20241002 update for Oracle Linux 8.8/Packer 1.9.x/Ansible 2.10.x
-# 20241218 update for Oracle Linux 8.10/9.5/Packer 1.11.2/Mint 22
+# 20241005 initial version - Oracle Linux 9, packer 1.9.4
 #
 # Copyright 2024 Martin Bach
 #
@@ -28,7 +25,7 @@
 set -euo pipefail
 
 echo
-echo "INFO: preparing packer build instructions for the creation of an Oracle Linux 8 Vagrant base box"
+echo "INFO: preparing packer build instructions for the creation of an Oracle Linux 9 Vagrant base box"
 echo
 
 # need to create the http directory, it will contain the customised kickstart file
@@ -63,17 +60,17 @@ echo "INFO: adding the SSH key to the agent"
 
 /bin/sed \
 -e "s#REPLACE_ME_SSHKEY#${VAGRANT_PUBLIC_KEY}#" \
-template/kickstart-OracleLinux-8-template.ks > http/ol8.ks
+template/kickstart-OracleLinux-9-template.ks > http/ol9.ks
 
 echo
 echo "INFO: kickstart file ready"
 echo
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_INSTALL_ISO="/m/stage/iso/OracleLinux-R8-U8-x86_64-dvd.iso"
-DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol8_8.8.0.box"
+DEFAULT_INSTALL_ISO="/m/stage/iso/OracleLinux-R9-U2-x86_64-dvd.iso"
+DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol9_9.2.0.box"
 
-read -p "Enter the location of the Oracle Linux 8 installation media (${DEFAULT_INSTALL_ISO})": INSTALL_ISO
+read -p "Enter the location of the Oracle Linux 9 installation media (${DEFAULT_INSTALL_ISO})": INSTALL_ISO
 if [ ! -f ${INSTALL_ISO:=${DEFAULT_INSTALL_ISO}} ]; then
     echo "ERR: cannot find ${INSTALL_ISO}, exiting"
     exit 1
@@ -97,10 +94,10 @@ fi
 read -p "Should packer build this VM for Virtualbox (vbox) or KVM (kvm)? " VAGRANT_BUILD_TARGET
 case ${VAGRANT_BUILD_TARGET} in
 kvm)
-    VAGRANT_BUILD_TARGET="source.qemu.ol8qemu"
+    VAGRANT_BUILD_TARGET="source.qemu.ol9qemu"
     ;;
 vbox)
-    VAGRANT_BUILD_TARGET="source.virtualbox-iso.ol8vbox"
+    VAGRANT_BUILD_TARGET="source.virtualbox-iso.ol9vbox"
     ;;
 *)
     echo "ERR: invalid architecture, must be one of kvm, vbox"
@@ -113,10 +110,10 @@ esac
 -e "s#REPLACE_ME_INSTALL_ISO#${INSTALL_ISO}#" \
 -e "s#REPLACE_ME_BOXNAME#${VAGRANT_BOX_LOC}#" \
 -e "s#REPLACE_ME_BUILD_ARCH#${VAGRANT_BUILD_TARGET}#" \
-template/vagrant-OracleLinux-8-template.pkr.hcl > vagrant-ol8.pkr.hcl
+template/vagrant-OracleLinux-9-template.pkr.hcl > vagrant-ol9.pkr.hcl
 
 # -------------------------- job done
 
 echo
-echo "INFO: preparation complete, next run packer validate vagrant-ol8.pkr.hcl && packer build vagrant-ol8.pkr.hcl"
+echo "INFO: preparation complete, next run packer validate vagrant-ol9.pkr.hcl && packer build vagrant-ol9.pkr.hcl"
 echo

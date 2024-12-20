@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 
-# prepare-debian11.sh
+# prepare-debian12.sh
 # ---------------------------------------------------------------------------
-# A short script to set up packer for building a debian 11 system
+# A short script to set up packer for building a debian 12 system
 #
-# Tested and written on Ubuntu 20.04 LTS
+# Tested and written on Linux Mint 22
 #
 # Version History
-# 20210823 initial version
-# 20221031 maintenance updates
-# 20230915 update for HCL2 and Packer 1.9.x
+# 20241003 initial version
+# 20241218 update for Oracle Linux 8.10/9.5/Packer 1.11.2/Ansible 11.1.0
 #
-# Copyright 2023 Martin Bach
+# Copyright 2024 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,7 +27,7 @@
 set -euo pipefail
 
 echo
-echo "INFO: preparing your packer environment for the creation of a Debian 11 Vagrant base box"
+echo "INFO: preparing your packer environment for the creation of a Debian 12 Vagrant base box"
 echo
 
 # need to create the http directory, it will contain the customised preseed file
@@ -53,8 +52,16 @@ if [ ! -f "${SSH_KEY:=${DEFAULT_SSH_KEY}}" ]; then
 fi
 
 VAGRANT_PUBLIC_KEY=$(/bin/cat "${SSH_KEY}")
+echo
+echo "INFO: adding the SSH key to the agent"
+/usr/bin/env | /usr/bin/grep -qE "(AGENT_PID|AUTH_SOCK)" || {
+    # start the SSH agent if it is not yet started
+    echo "INFO: SSH agent not yet started, starting it now"
+    eval $(/usr/bin/ssh-agent)
+}
+
 /usr/bin/ssh-add "${SSH_KEY%.pub}" || {
-    echo "INFO: failed to add the SSH key to the agent, check logs"
+    echo "ERR: failed to add the SSH key to the agent, check logs"
     exit 1
 }
 
@@ -62,14 +69,14 @@ VAGRANT_PUBLIC_KEY=$(/bin/cat "${SSH_KEY}")
 -e "s#REPLACE_ME_MIRROR_DIR#${DEBIAN_MIRROR_DIR:-${DEFAULT_MIRROR_DIR}}#" \
 -e "s#REPLACE_ME_MIRROR#${DEBIAN_MIRROR:-${DEFAULT_MIRROR}}#" \
 -e "s#REPLACE_ME_SSHKEY#${VAGRANT_PUBLIC_KEY}#" \
-template/preseed-debian-11-template.cfg > http/preseed.cfg
+template/preseed-debian-12-template.cfg > http/preseed.cfg
 
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_NETINST_ISO="/m/stage/debian-11.7.0-amd64-netinst.iso"
-DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/debian-11.7.0.box"
+DEFAULT_NETINST_ISO="/m/stage/iso/debian-12.1.0-amd64-netinst.iso"
+DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/debian-12.0.0.box"
 
-read -p "Enter the location of the Debian 11 network installation media (${DEFAULT_NETINST_ISO})": NETINST_ISO
+read -p "Enter the location of the Debian 12 network installation media (${DEFAULT_NETINST_ISO})": NETINST_ISO
 if [ ! -f ${NETINST_ISO:=${DEFAULT_NETINST_ISO}} ]; then
     echo "ERR: cannot find ${NETINST_ISO}, exiting"
     exit 1
@@ -86,15 +93,31 @@ elif [ -f "${VAGRANT_BOX_LOC:=${DEFAULT_BOX_LOC}}" ]; then
     exit 1
 fi
 
+# define target architecture (Virtualbox or KVM)
+read -p "Should packer build this VM for Virtualbox (vbox) or KVM (kvm)? " VAGRANT_BUILD_TARGET
+case ${VAGRANT_BUILD_TARGET} in
+kvm)
+    VAGRANT_BUILD_TARGET="source.qemu.debian12qemu"
+    ;;
+vbox)
+    VAGRANT_BUILD_TARGET="source.virtualbox-iso.debian12vbox"
+    ;;
+*)
+    echo "ERR: invalid architecture, must be one of kvm, vbox"
+    exit 1
+    ;;
+esac
+
 /bin/sed \
 -e "s#REPLACE_ME_SHA256SUM#${SHA256SUM}#" \
--e "s#REPLACE_ME_DEBIAN11_NETINST#${NETINST_ISO}#" \
+-e "s#REPLACE_ME_DEBIAN12_NETINST#${NETINST_ISO}#" \
 -e "s#REPLACE_ME_BOXNAME#${VAGRANT_BOX_LOC}#" \
-template/vagrant-debian-11-template.pkr.hcl > vagrant-debian-11.pkr.hcl
+-e "s#REPLACE_ME_BUILD_ARCH#${VAGRANT_BUILD_TARGET}#" \
+template/vagrant-debian-12-template.pkr.hcl > vagrant-debian-12.pkr.hcl
 
 # -------------------------- job done
 
 echo
-echo "INFO: preparation complete, next run packer init && packer validate vagrant-debian-11.pkr.hcl "
-echo "INFO: followed by packer build vagrant-debian-11.pkr.hcl"
+echo "INFO: preparation complete, next run packer init vagrant-debian-12.pkr.hcl && packer validate vagrant-debian-12.pkr.hcl "
+echo "INFO: followed by packer build vagrant-debian-12.pkr.hcl"
 echo
