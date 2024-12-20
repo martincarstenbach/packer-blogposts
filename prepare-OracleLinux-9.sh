@@ -6,9 +6,9 @@
 # Refer to the readme file for details
 #
 # Version History
-# 20231005 initial version - Oracle Linux 9, packer 1.9.4
+# 20241005 initial version - Oracle Linux 9, packer 1.9.4
 #
-# Copyright 2023 Martin Bach
+# Copyright 2024 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

@@ -4,12 +4,13 @@
 # ---------------------------------------------------------------------------
 # A short script to set up packer for building a debian 12 system
 #
-# Tested and written on Ubuntu 22.04 LTS
+# Tested and written on Linux Mint 22
 #
 # Version History
-# 20231003 initial version
+# 20241003 initial version
+# 20241218 update for Oracle Linux 8.10/9.5/Packer 1.11.2/Ansible 11.1.0
 #
-# Copyright 2023 Martin Bach
+# Copyright 2024 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -117,6 +118,6 @@ template/vagrant-debian-12-template.pkr.hcl > vagrant-debian-12.pkr.hcl
 # -------------------------- job done
 
 echo
-echo "INFO: preparation complete, next run packer init && packer validate vagrant-debian-12.pkr.hcl "
+echo "INFO: preparation complete, next run packer init vagrant-debian-12.pkr.hcl && packer validate vagrant-debian-12.pkr.hcl "
 echo "INFO: followed by packer build vagrant-debian-12.pkr.hcl"
 echo

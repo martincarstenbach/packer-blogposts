@@ -4,13 +4,15 @@ Code examples from my blog covering [Packer](https://www.packer.io/), [Ansible](
 
 ## Usage
 
-The code in this repository allows you to create a local Vagrant base box meeting [the requirements](https://www.vagrantup.com/docs/boxes/base) documented by HashiCorp as conveniently as possible. Although I tried to be quite generic in the way the code is written, I wrote it for myself and, nor won't guarantee it works for you. Please refer to the [License](LICENSE) for details.
+The code in this repository allows you to create a local Vagrant base box meeting [the requirements](https://www.vagrantup.com/docs/boxes/base) documented by HashiCorp as conveniently as possible. Although I tried to be quite generic in the way the code is written, I wrote it for myself and, nor won't guarantee it works for you. 
+
+Please refer to the [License](LICENSE) for details.
 
 For each Packer build I implemented you'll find a `prepare-*.sh` script prompting you for input before creating the Packer HCL file. Each build contains a set of templates in the `template` folder. Placeholders in the templates will be substituted with your answers. Once that's completed, a build file will be present in the top level directory for you to run. Make sure you check the auto-generated file for correctness. As I said before, this file works for what I need it to do, your directory structure is most likely different.
 
 It is assumed you verified the installation media, most notably the SHA256 checksums, before using them.
 
-Once the base install is complete, Ansible playbooks are executed, installing Virtual Box [Guest Additions](https://www.virtualbox.org/manual/ch04.html) matching your VirtualBox version in case you build your Vagrant box for this platform. Building for KVM doesn't require this step.
+Once the base install is complete, Ansible playbooks are executed, installing Virtual Box [Guest Additions](https://www.virtualbox.org/manual/ch04.html) matching your VirtualBox version in case you build your Vagrant box for this platform. Building for KVM adds guest tools (spice-vdagent and qemu-guest-agent)
 
 If you get the following message when validating the generated HCL file you will need to install the plugins as per the instructions on screen.
 
@@ -38,17 +40,21 @@ This is really important! Please make sure you understand the implications in ca
 
 ## Notes
 
-This repository's code was written using Fedora 38 on x86-64 using the following software:
+This repository's code was tested on Linux Mint/x86-64 using the following software:
 
-- ansible-7.7.0-1.fc38.noarch
-- ansible-core-2.14.8-1.fc38.noarch
-- ansible-packaging-1-10.fc38.noarch
-- ansible-srpm-macros-1-10.fc38.noarch
-- packer-1.9.4-1.x86_64
-- vagrant-2.3.7-1.x86_64
-- VirtualBox 7.0.10
+- ansible-9.2.0+dfsg-0ubuntu5
+- ansible-core-2.16.3-0ubuntu2
+- packer-1.11.2
+- vagrant-2.4.3
+- vagrant-libvirt (0.12.2)
 
-Packer and Vagrant have been downloaded from HashiCorp's YUM repository. VirtualBox has been downloaded from <https://www.virtualbox.org>
+Virtualbox has _not_ been tested recently. If you find any problems, please raise an issue and I'll try and address it.
+
+## Known Issues
+
+There is an [ongoing problem](https://github.com/ansible/ansible/issues/82068) concerning Ansible > 2.17 and Oracle Linux/RedHat 8 targets, preventing more recent Ansible versions from working properly with them. In a nutshell, Ansible > 2.16 doesn't support Python 3.6 which is used heavily internally by software like `dnf`. Although you can install more modern Python versions, there is a core dependency on `/usr/libexec/platform-python`. Using Ansible as provided by Linux Mint solves the problem for now. This issue affects the Oracle Linux 8 build only, Oracle Linux 9 and Debian 12 are fine.
+
+Packer and Vagrant have been downloaded from HashiCorp's website. VirtualBox has been downloaded from <https://www.virtualbox.org>
 
 > Before installing software always make sure you read, understand and abide by the license agreement!
 
@@ -63,3 +69,4 @@ Major milestones - all the history can be found in Git.
 | 221031 | update for OL8.5, Packer 1.8 and Ansible 2.10.x |
 | 230912 | update to Packer 1.9.4 and HCL2, dropped support for Oracle Linux 7 |
 | 231003 | fixes for Debian 11 and 12, add support for `vagrant-libvirt` |
+| 241221 | move to Mint 22, drop support for Debian 11 |

@@ -8,9 +8,10 @@
 # Version History
 # 20210823 initial version
 # 20221031 update for Oracle Linux 8.5/Packer 1.8.x/Ansible 2.10.x
-# 20231002 update for Oracle Linux 8.8/Packer 1.9.x/Ansible 2.10.x
+# 20241002 update for Oracle Linux 8.8/Packer 1.9.x/Ansible 2.10.x
+# 20241218 update for Oracle Linux 8.10/9.5/Packer 1.11.2/Mint 22
 #
-# Copyright 2023 Martin Bach
+# Copyright 2024 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.

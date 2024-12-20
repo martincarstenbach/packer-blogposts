@@ -1,4 +1,4 @@
-# Copyright 2023 Martin Bach
+# Copyright 2024 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,6 +40,10 @@
       - unzip
       - kernel-uek-devel
       - oracle-epel-release-el9
+
+  - name: remove unneeded packages
+    ansible.builtin.dnf:
+      autoremove: true
 
   # TODO: complete virtualbox specific tasks
   - name: Virtualbox-specific tasks

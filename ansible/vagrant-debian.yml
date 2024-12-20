@@ -1,4 +1,4 @@
-# Copyright 2023 Martin Bach
+# Copyright 2024 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,13 +39,13 @@
       - wget
       - vim
       - jq
-      - spice-vdagent
   
   - name: upgrade all packages
     apt:
       name: '*'
       state: latest
 
+  # ------------------------------------------------------------------------------------ VIRTUALBOX
   - name: Virtualbox-specific tasks
     block:
     - name: create a temporary mount point for vbox guest additions  
@@ -81,3 +81,50 @@
         state: absent
 
     when: ansible_virtualization_type == "virtualbox"
+
+# ------------------------------------------------------------------------------------ KVM
+  - name: kvm-qemu-libvirt-specific tasks
+    block:
+    - name: install qemu specifc software packages
+      apt:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+        - spice-vdagent
+        - qemu-guest-agent
+        - ifplugd
+
+    - name: remove network device names
+      lineinfile:
+        path: /etc/network/interfaces
+        regexp: "{{ item }}"
+        state: absent
+      loop:
+      - "^auto"
+      - "^iface"
+      - "^allow-hotplug"
+    
+    - name: add the correct device name
+      blockinfile:
+        path: /etc/network/interfaces
+        block: |
+          allow-hotplug eth0
+          auto lo
+          iface lo inet loopback
+          iface eth0 inet dhcp
+          pre-up sleep 2
+    
+    - name: configure ifplugd for eth0
+      lineinfile:
+        path: /etc/default/ifplugd
+        regexp: "^INTERFACES=.*"
+        line: 'INTERFACES="eth0"'
+    
+    - name: start the new services
+      systemd:
+        state: started
+        name: ifplugd
+        enabled: true
+
+    when: ansible_virtualization_type == "kvm"

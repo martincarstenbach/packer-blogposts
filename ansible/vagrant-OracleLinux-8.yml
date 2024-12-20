@@ -1,4 +1,4 @@
-# Copyright 2023 Martin Bach
+# Copyright 2024 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,15 +21,15 @@
     
   tasks:
   - name: upgrade all packages (this can take a while)
-    yum:
+    ansible.builtin.dnf:
       name: '*'
       state: latest
 
   - name: reboot to apply potential kernel changes
-    reboot:  
+    ansible.builtin.reboot:  
 
   - name: install auxiliary packages
-    yum:
+    ansible.builtin.dnf:
       name: "{{ packages }}"
       state: present
     vars:
@@ -41,22 +41,26 @@
       - kernel-uek-devel
       - oracle-epel-release-el8
   
+  - name: remove unneeded packages
+    ansible.builtin.dnf:
+      autoremove: true
+  
   - name: Virtualbox-specific tasks
     block:
     - name: install DKMS from the OL8 EPEL repository
-      yum:
+      ansible.builtin.dnf:
         name: dkms
         enablerepo: ol8_developer_EPEL
         state: present
 
     - name: create a temporary mount point for vbox guest additions  
-      file:
+      ansible.builtin.file:
         path: "{{ mountDir }}"
         state: directory
         
     # as per `guest_additions_path` in Packer's configuration file
     - name: mount guest additions ISO read-only
-      mount:
+      ansible.builtin.mount:
         path: "{{ mountDir }}"
         src: /home/vagrant/VBoxGuestAdditions.iso
         fstype: iso9660
@@ -65,19 +69,32 @@
 
     # in case running kernel modules are detected using `failed_when` can prevent an error
     - name: execute guest additions script
-      command: "{{ mountDir }}/VBoxLinuxAdditions.run"
+      ansible.builtin.command: "{{ mountDir }}/VBoxLinuxAdditions.run"
       register: modules
       failed_when: 
       - modules.rc != 0
       - modules.rc != 2
 
     - name: unmount guest additions ISO
-      mount:
+      ansible.builtin.mount:
         path: "{{ mountDir }}"
         state: absent
 
     - name: remove the temporary mount point  
-      file:
+      ansible.builtin.file:
         path: "{{ mountDir }}"
         state: absent
     when: ansible_virtualization_type == "virtualbox"
+
+  - name: kvm-qemu-libvirt-specific tasks
+    block:
+    - name: install qemu guest agent and spice vdagent
+      yum:
+        name: "{{ packages }}"
+        state: present
+      vars:
+        packages:
+        - spice-vdagent
+        - qemu-guest-agent
+
+    when: ansible_virtualization_type == "kvm"
