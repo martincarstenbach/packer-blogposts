@@ -89,7 +89,7 @@
   - name: kvm-qemu-libvirt-specific tasks
     block:
     - name: install qemu guest agent and spice vdagent
-      yum:
+      ansible.builtin.dnf:
         name: "{{ packages }}"
         state: present
       vars:

@@ -21,7 +21,7 @@
     
   tasks:
   - name: upgrade all packages (this can take a while)
-    yum:
+    ansible.builtin.dnf:
       name: '*'
       state: latest
 
@@ -29,7 +29,7 @@
     reboot:  
 
   - name: install generic auxiliary packages
-    yum:
+    ansible.builtin.dnf:
       name: "{{ packages }}"
       state: present
     vars:
@@ -49,7 +49,7 @@
   - name: Virtualbox-specific tasks
     block:
     - name: install DKMS from the OL9 EPEL repository
-      yum:
+      ansible.builtin.dnf:
         name: dkms
         enablerepo: ol9_developer_EPEL
         state: present
@@ -90,7 +90,7 @@
   - name: kvm-qemu-libvirt-specific tasks
     block:
     - name: install qemu guest agent and spice vdagent
-      yum:
+      ansible.builtin.dnf:
         name: "{{ packages }}"
         state: present
       vars:
