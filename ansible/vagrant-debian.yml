@@ -99,34 +99,8 @@
               - qemu-guest-agent
               - ifplugd
 
-        - name: Remove network device names
+        - name: Revert to the old network device naming scheme
           ansible.builtin.lineinfile:
-            path: /etc/network/interfaces
-            regexp: "{{ item }}"
-            state: absent
-          loop:
-            - "^auto"
-            - "^iface"
-            - "^allow-hotplug"
-
-        - name: Add the correct device name
-          ansible.builtin.blockinfile:
-            path: /etc/network/interfaces
-            block: |
-              allow-hotplug eth0
-              auto lo
-              iface lo inet loopback
-              iface eth0 inet dhcp
-              pre-up sleep 2
-
-        - name: Configure ifplugd for eth0
-          ansible.builtin.lineinfile:
-            path: /etc/default/ifplugd
-            regexp: "^INTERFACES=.*"
-            line: 'INTERFACES="eth0"'
-
-        - name: Start the new services
-          ansible.builtin.systemd:
-            state: started
-            name: ifplugd
-            enabled: true
+            path: /etc/default/grub
+            regexp: '^GRUB_CMDLINE_LINUX='
+            line: 'GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0"'
