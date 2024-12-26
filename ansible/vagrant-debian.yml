@@ -13,118 +13,120 @@
 # limitations under the License.
 
 ---
-
-- hosts: all
-  become: yes
+- name: Perform post installation tasks for Debian
+  hosts: all
+  become: true
   vars:
-    mountDir: /vbox
+    mount_dir: /vbox
 
   tasks:
-  - name: check for Debian 11 and later
-    fail:
-      msg: This playbook must be executed on Debian 11 or later
-    when: 
-    - ansible_distribution != 'Debian' 
-    - ansible_distribution_major_version is version('11', operator 'le')
+    - name: Make sure this is Debian 12
+      ansible.builtin.fail:
+        msg: This playbook must be executed on Debian 12 or later
+      when:
+        - ansible_distribution != 'Debian'
+        - ansible_distribution_major_version is version('12', operator 'eq')
 
-  - name: install additional useful packages
-    apt:
-      name: "{{ packages }}"
-      state: latest
-      update_cache: yes
-    vars:
-      packages:
-      - bzip2
-      - curl
-      - wget
-      - vim
-      - jq
-  
-  - name: upgrade all packages
-    apt:
-      name: '*'
-      state: latest
-
-  # ------------------------------------------------------------------------------------ VIRTUALBOX
-  - name: Virtualbox-specific tasks
-    block:
-    - name: create a temporary mount point for vbox guest additions  
-      file:
-        path: "{{ mountDir }}"
-        state: directory
-        
-    # as per `guest_additions_path` in Packer's configuration file
-    - name: mount guest additions ISO read-only
-      mount:
-        path: "{{ mountDir }}"
-        src: /home/vagrant/VBoxGuestAdditions.iso
-        fstype: iso9660
-        opts: ro
-        state: mounted
-
-    # in case running kernel modules are detected using `failed_when` can prevent an error
-    - name: execute guest additions script
-      command: "{{ mountDir }}/VBoxLinuxAdditions.run"
-      register: modules
-      failed_when: 
-      - modules.rc != 0
-      - modules.rc != 2
-
-    - name: unmount guest additions ISO
-      mount:
-        path: "{{ mountDir }}"
-        state: absent
-
-    - name: remove the temporary mount point  
-      file:
-        path: "{{ mountDir }}"
-        state: absent
-
-    when: ansible_virtualization_type == "virtualbox"
-
-# ------------------------------------------------------------------------------------ KVM
-  - name: kvm-qemu-libvirt-specific tasks
-    block:
-    - name: install qemu specifc software packages
-      apt:
+    - name: Install additional useful packages
+      ansible.builtin.apt:
         name: "{{ packages }}"
-        state: present
+        state: latest   # noqa: package-latest
+        update_cache: true
       vars:
         packages:
-        - spice-vdagent
-        - qemu-guest-agent
-        - ifplugd
+          - bzip2
+          - curl
+          - wget
+          - vim
+          - jq
 
-    - name: remove network device names
-      lineinfile:
-        path: /etc/network/interfaces
-        regexp: "{{ item }}"
-        state: absent
-      loop:
-      - "^auto"
-      - "^iface"
-      - "^allow-hotplug"
-    
-    - name: add the correct device name
-      blockinfile:
-        path: /etc/network/interfaces
-        block: |
-          allow-hotplug eth0
-          auto lo
-          iface lo inet loopback
-          iface eth0 inet dhcp
-          pre-up sleep 2
-    
-    - name: configure ifplugd for eth0
-      lineinfile:
-        path: /etc/default/ifplugd
-        regexp: "^INTERFACES=.*"
-        line: 'INTERFACES="eth0"'
-    
-    - name: start the new services
-      systemd:
-        state: started
-        name: ifplugd
-        enabled: true
+    - name: Upgrade all packages
+      ansible.builtin.apt:
+        name: '*'
+        state: latest   # noqa: package-latest
 
-    when: ansible_virtualization_type == "kvm"
+    # ------------------------------------------------------------------------------------ VIRTUALBOX
+
+    - name: Virtualbox-specific tasks
+      when: ansible_virtualization_type == "virtualbox"
+      block:
+        - name: Create a temporary mount point for vbox guest additions
+          ansible.builtin.file:
+            path: "{{ mount_dir }}"
+            state: directory
+            mode: "755"
+
+        # as per `guest_additions_path` in Packer's configuration file
+        - name: Mount guest additions ISO read-only
+          ansible.posix.mount:
+            path: "{{ mount_dir }}"
+            src: /home/vagrant/VBoxGuestAdditions.iso
+            fstype: iso9660
+            opts: ro
+            state: mounted
+
+        # in case running kernel modules are detected using `failed_when` can prevent an error
+        - name: Execute guest additions script
+          ansible.builtin.command: "{{ mount_dir }}/VBoxLinuxAdditions.run"
+          register: modules
+          failed_when:
+            - modules.rc != 0
+            - modules.rc != 2
+          changed_when: modules.rc == 0
+
+        - name: Unmount guest additions ISO
+          ansible.posix.mount:
+            path: "{{ mount_dir }}"
+            state: absent
+
+        - name: Remove the temporary mount point
+          ansible.builtin.file:
+            path: "{{ mount_dir }}"
+            state: absent
+
+    # ------------------------------------------------------------------------------------ KVM
+
+    - name: Kvm-qemu-libvirt-specific tasks
+      when: ansible_virtualization_type == "kvm"
+      block:
+        - name: Install qemu-specifc software packages
+          ansible.builtin.apt:
+            name: "{{ packages }}"
+            state: present
+          vars:
+            packages:
+              - spice-vdagent
+              - qemu-guest-agent
+              - ifplugd
+
+        - name: Remove network device names
+          ansible.builtin.lineinfile:
+            path: /etc/network/interfaces
+            regexp: "{{ item }}"
+            state: absent
+          loop:
+            - "^auto"
+            - "^iface"
+            - "^allow-hotplug"
+
+        - name: Add the correct device name
+          ansible.builtin.blockinfile:
+            path: /etc/network/interfaces
+            block: |
+              allow-hotplug eth0
+              auto lo
+              iface lo inet loopback
+              iface eth0 inet dhcp
+              pre-up sleep 2
+
+        - name: Configure ifplugd for eth0
+          ansible.builtin.lineinfile:
+            path: /etc/default/ifplugd
+            regexp: "^INTERFACES=.*"
+            line: 'INTERFACES="eth0"'
+
+        - name: Start the new services
+          ansible.builtin.systemd:
+            state: started
+            name: ifplugd
+            enabled: true
