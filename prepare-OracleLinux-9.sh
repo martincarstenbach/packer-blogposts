@@ -7,8 +7,9 @@
 #
 # Version History
 # 20241005 initial version - Oracle Linux 9, packer 1.9.4
+# 20250711 update for Oracle Linux 9.6/packer 1.13.1
 #
-# Copyright 2024 Martin Bach
+# Copyright 2025 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -67,8 +68,8 @@ echo "INFO: kickstart file ready"
 echo
 # -------------------------- step 2: create the packer build instructions
 
-DEFAULT_INSTALL_ISO="/m/stage/iso/OracleLinux-R9-U2-x86_64-dvd.iso"
-DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol9_9.2.0.box"
+DEFAULT_INSTALL_ISO="/m/stage/iso/OracleLinux-R9-U6-x86_64-dvd.iso"
+DEFAULT_BOX_LOC="${HOME}/vagrant/boxes/ol9_9.6.0.box"
 
 read -p "Enter the location of the Oracle Linux 9 installation media (${DEFAULT_INSTALL_ISO})": INSTALL_ISO
 if [ ! -f ${INSTALL_ISO:=${DEFAULT_INSTALL_ISO}} ]; then
@@ -115,5 +116,8 @@ template/vagrant-OracleLinux-9-template.pkr.hcl > vagrant-ol9.pkr.hcl
 # -------------------------- job done
 
 echo
-echo "INFO: preparation complete, next run packer validate vagrant-ol9.pkr.hcl && packer build vagrant-ol9.pkr.hcl"
+echo "INFO: preparation complete, next run"
+echo "      packer init vagrant-ol9.pkr.hcl"
+echo "      packer validate vagrant-ol9.pkr.hcl"
+echo "      packer build vagrant-ol9.pkr.hcl"
 echo

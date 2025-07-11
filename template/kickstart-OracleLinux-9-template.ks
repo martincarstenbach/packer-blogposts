@@ -2,7 +2,7 @@
 
 # Simple kickstart file for Oracle Linux 9.x to create the most basic Vagrant base box
 #
-# Copyright 2024 Martin Bach
+# Copyright 2025 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,8 +34,7 @@ keyboard --vckeymap=us --xlayouts='us'
 lang en_US.UTF-8
 
 # Network information
-network  --bootproto=dhcp --ipv6=auto --activate
-network  --hostname=ol9packer
+network  --bootproto=dhcp --ipv6=auto --activate --hostname=ol9packer
 
 # Root password
 rootpw --iscrypted $6$wz0w1cWqtJbHDBGV$sxI3YgJCWxXUdf1kUZd8KneBCK2iwW1Fh/SdeLWJ.gBTNDrJrex2/ANoR7OQ3jGJcetT1yXaW.fGAhRFgn7cd1
@@ -44,7 +43,7 @@ rootpw --iscrypted $6$wz0w1cWqtJbHDBGV$sxI3YgJCWxXUdf1kUZd8KneBCK2iwW1Fh/SdeLWJ.
 services --enabled="chronyd"
 
 # System timezone
-timezone Etc/UTC --isUtc
+timezone Etc/UTC --utc
 
 # vagrant account
 user --name=vagrant --password=$6$0tKbDlH3oWCofl1G$cblMfvUCop9TCgTAKfQZYM4l3ZLahzrirsXrFW6Hv56GFLXKp5kQ5TqEi6fkWJ5HkvAo3gw8tdP6ZJ3xaD0Km/ --iscrypted --gecos="vagrant"

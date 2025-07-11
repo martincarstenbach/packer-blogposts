@@ -44,7 +44,7 @@ This repository's code was tested on Linux Mint/x86-64 using the following softw
 
 - ansible-9.2.0+dfsg-0ubuntu5
 - ansible-core-2.16.3-0ubuntu2
-- packer-1.11.2
+- packer-1.13.1
 - vagrant-2.4.3
 - vagrant-libvirt (0.12.2)
 

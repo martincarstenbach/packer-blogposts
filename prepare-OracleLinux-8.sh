@@ -11,7 +11,7 @@
 # 20241002 update for Oracle Linux 8.8/Packer 1.9.x/Ansible 2.10.x
 # 20241218 update for Oracle Linux 8.10/9.5/Packer 1.11.2/Mint 22
 #
-# Copyright 2024 Martin Bach
+# Copyright 2025 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
