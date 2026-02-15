@@ -27,7 +27,7 @@
 
 #!/usr/bin/env bash
 
-# prepare-OracleLinux-9.sh (hardened + colourised)
+# prepare-OracleLinux-9.sh
 #
 # Prepares kickstart and Packer configuration files for building
 # an Oracle Linux 9 Vagrant base box.

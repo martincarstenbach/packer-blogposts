@@ -2,7 +2,7 @@
 
 # Simple kickstart file for Oracle Linux 9.x to create the most basic Vagrant base box
 #
-# Copyright 2025 Martin Bach
+# Copyright 2026 Martin Bach
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
